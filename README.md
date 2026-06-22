@@ -4,6 +4,14 @@ AI agents monitor, local models, and full Mac optimization suite — cleanup, sp
 
 Built with [Electron](https://www.electronjs.org/).
 
+## Screenshots
+
+| Dashboard | Speed |
+|---|---|
+| ![Dashboard — your Mac at a glance](docs/screenshots/01-dashboard.png) | ![Speed — performance score & one-click tune-ups](docs/screenshots/02-speed.png) |
+| **Token Usage** | **Malware Scan** |
+| ![Token Usage — AI agent token monitoring](docs/screenshots/03-tokens.png) | ![Malware Scan — on-demand protection](docs/screenshots/04-protection.png) |
+
 ## Features
 
 - **AI agent & token monitor** — track AI agent activity and billable token usage across the month
