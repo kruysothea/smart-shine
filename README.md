@@ -8,9 +8,9 @@ Built with [Electron](https://www.electronjs.org/).
 
 | Dashboard | Speed |
 |---|---|
-| ![Dashboard — your Mac at a glance](docs/screenshots/01-dashboard.png) | ![Speed — performance score & one-click tune-ups](docs/screenshots/02-speed.png) |
+| ![Dashboard — your Mac at a glance](docs/screenshots/01-dashboard.png?v=2) | ![Speed — performance score & one-click tune-ups](docs/screenshots/02-speed.png?v=2) |
 | **Token Usage** | **Malware Scan** |
-| ![Token Usage — AI agent token monitoring](docs/screenshots/03-tokens.png) | ![Malware Scan — on-demand protection](docs/screenshots/04-protection.png) |
+| ![Token Usage — AI agent token monitoring](docs/screenshots/03-tokens.png?v=2) | ![Malware Scan — on-demand protection](docs/screenshots/04-protection.png?v=2) |
 
 ## Features
 
