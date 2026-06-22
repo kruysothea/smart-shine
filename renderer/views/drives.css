@@ -1,0 +1,211 @@
+/* Storage Drives Management — cyberpunk CleanMyMac skin */
+.drives-page { gap: 22px; }
+
+.drive-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.drive-metric {
+  border: 1px solid var(--line);
+  background: linear-gradient(135deg, rgba(34,211,238,.07), rgba(185,127,255,.035));
+  padding: 14px 16px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.drive-metric div {
+  color: var(--text-3);
+  font: 10px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+}
+.drive-metric strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 22px;
+  text-shadow: 0 0 14px var(--cyan-glow);
+}
+
+.drive-section { animation: cmac-fade-in .35s ease both; }
+.drive-list { display: flex; flex-direction: column; gap: 10px; }
+.drive-row {
+  border: 1px solid var(--line);
+  background: linear-gradient(90deg, rgba(255,255,255,.035), rgba(34,211,238,.018));
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.drive-row:hover, .drive-row.selected {
+  border-color: var(--line-bright);
+  background: linear-gradient(90deg, rgba(34,211,238,.07), rgba(185,127,255,.035));
+}
+.drive-row-main {
+  display: grid;
+  grid-template-columns: 46px minmax(220px, 1.3fr) minmax(170px, .7fr) 110px 96px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+}
+.drive-row .cmac-row-ico.cyan { color: var(--cyan); }
+.drive-row .cmac-row-ico.green { color: var(--green); }
+.drive-name { font-weight: 800; letter-spacing: .2px; color: var(--text); }
+.drive-id {
+  margin-left: 8px;
+  font: 10px var(--mono);
+  color: var(--cyan);
+  border: 1px solid var(--line);
+  padding: 2px 6px;
+  background: rgba(34,211,238,.05);
+}
+.drive-sub, .drive-path {
+  margin-top: 4px;
+  color: var(--text-3);
+  font: 11px/1.35 var(--mono);
+  letter-spacing: .15px;
+}
+.drive-path { color: var(--text-2); word-break: break-all; }
+.drive-size strong { color: var(--text); font-size: 12px; }
+.drive-bar {
+  height: 5px;
+  margin-top: 8px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.06);
+  overflow: hidden;
+}
+.drive-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+.drive-health {
+  font: 11px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .9px;
+}
+.drive-health.green { color: var(--green); }
+.drive-health.red { color: var(--red); }
+.drive-health.muted { color: var(--text-3); }
+.drive-state { text-align: right; }
+.drive-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  font: 10px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: rgba(255,255,255,.035);
+}
+.drive-badge.green { color: var(--green); border-color: rgba(125,249,200,.35); }
+.drive-badge.muted { color: var(--text-3); }
+.drive-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+.drive-controls .cmac-cta, .drive-trouble-actions .cmac-cta, .drive-locks .cmac-cta, .drive-format .cmac-cta {
+  padding: 8px 13px;
+  font-size: 10px;
+  letter-spacing: 1.1px;
+}
+
+.drive-trouble {
+  margin: 0 14px 14px;
+  padding: 14px;
+  border: 1px solid rgba(34,211,238,.25);
+  background: radial-gradient(circle at top left, rgba(34,211,238,.08), transparent 55%), rgba(7,9,14,.45);
+}
+.drive-trouble-head, .drive-locks-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.drive-trouble-head strong, .drive-locks-head strong {
+  display: block;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+}
+.drive-trouble-head span {
+  display: block;
+  color: var(--text-3);
+  font: 11px var(--mono);
+  margin-top: 3px;
+}
+.drive-trouble-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.drive-format {
+  margin-top: 12px;
+}
+.drive-format-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.drive-format label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--text-3);
+  font: 10px var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.drive-format select, .drive-format input {
+  min-width: 180px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.28);
+  color: var(--text);
+  padding: 8px 10px;
+  font: 12px var(--mono);
+  outline: none;
+}
+.drive-format select:focus, .drive-format input:focus {
+  border-color: var(--line-bright);
+  box-shadow: 0 0 12px rgba(34,211,238,.16);
+}
+.drive-note, .drive-warning, .drive-ok {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  font: 11px/1.45 var(--mono);
+  color: var(--text-2);
+  background: rgba(255,255,255,.035);
+}
+.drive-note { border-color: rgba(251,191,36,.35); color: var(--amber); }
+.drive-warning { border-color: rgba(255,94,125,.35); color: var(--red); }
+.drive-ok { margin-top: 12px; color: var(--green); border-color: rgba(125,249,200,.35); }
+.drive-locks { margin-top: 14px; }
+.drive-lock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.drive-lock strong { color: var(--text); }
+.drive-lock span { display: block; margin-top: 3px; color: var(--text-3); font: 11px var(--mono); }
+.drive-log {
+  margin: 14px 0 0;
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.28);
+  padding: 12px;
+  font: 11px/1.45 var(--mono);
+}
+
+@media (max-width: 1180px) {
+  .drive-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .drive-row-main { grid-template-columns: 46px 1fr; }
+  .drive-size, .drive-health, .drive-state { grid-column: 2; text-align: left; }
+  .drive-controls { justify-content: flex-start; padding-left: 74px; }
+}

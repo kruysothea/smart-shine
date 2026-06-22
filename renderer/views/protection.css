@@ -1,0 +1,73 @@
+/* ============================================================
+   PROTECTION (Malware Scan) view — all classes prefixed `mal-`.
+   CleanMyMac-style flow on the shared CMAC layer (cyberpunk skin).
+   Lean on CMAC classes (.cmac-stage / .cmac-orb / .cmac-row / etc.);
+   only view-unique extras live here.
+   ============================================================ */
+
+/* ---- Level selector (Quick / Normal / Deep) under the orb ---- */
+.mal-levels {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.mal-level {
+  padding: 9px 20px;
+  font-size: 11px;
+  letter-spacing: 1.4px;
+}
+/* Active chip glows cyan to read as "selected". */
+.mal-level.active {
+  background: rgba(34, 211, 238, 0.14);
+  color: var(--cyan-bright);
+  border-color: var(--cyan);
+  box-shadow: inset 0 0 16px rgba(34, 211, 238, 0.18), 0 0 16px -4px var(--cyan-glow);
+}
+.mal-level:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.mal-level-hint {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.6px;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+/* ---- Re-scannable orb (after results, click the orb to scan again) ---- */
+.cmac-orb.mal-rescan {
+  cursor: pointer;
+}
+.cmac-orb.mal-rescan:hover .cmac-orb-num {
+  filter: brightness(1.15);
+}
+
+/* ---- Section spacing for the stacked result groups ---- */
+.mal-sec {
+  margin-top: 22px;
+}
+
+/* ---- Quarantine action row ---- */
+.mal-act {
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+.mal-note {
+  font-family: var(--sans);
+  font-size: 11.5px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+.mal-ext-note {
+  margin-top: 10px;
+}
+
+/* ---- Footer scan summary ---- */
+.mal-foot {
+  margin-top: 22px;
+  text-align: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}

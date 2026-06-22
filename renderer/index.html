@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>SmartShine</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="shared/cmac.css" />
+  <link rel="stylesheet" href="views/speed.css" />
+  <link rel="stylesheet" href="views/protection.css" />
+  <link rel="stylesheet" href="views/spacelens.css" />
+  <link rel="stylesheet" href="views/duplicates.css" />
+  <link rel="stylesheet" href="views/cloud.css" />
+  <link rel="stylesheet" href="views/apps.css" />
+  <link rel="stylesheet" href="views/drives.css" />
+</head>
+<body>
+  <!-- Global gradient defs shared by all CMAC scan orbs -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="cmacGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#22d3ee"/>
+        <stop offset="100%" stop-color="#b97fff"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 32 32" width="22" height="22">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#7df9c8"/>
+                <stop offset="100%" stop-color="#3aa1ff"/>
+              </linearGradient>
+            </defs>
+            <path d="M16 3l11 6v7c0 7-5 12-11 13C10 28 5 23 5 16V9z" fill="url(#g1)"/>
+            <path d="M11 16l4 4 7-8" stroke="#0e0f14" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">SMART//SHINE</div>
+          <div class="brand-sub">SECURE · v2.0</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-section">Overview</div>
+        <a class="nav-item active" data-num="01" data-view="dashboard"><span>Dashboard</span></a>
+        <a class="nav-item" data-num="02" data-view="activity"><span>Activity Monitor</span></a>
+        <a class="nav-item" data-num="13" data-view="drives"><span>Storage Drives</span></a>
+        <div class="nav-section">Performance</div>
+        <a class="nav-item" data-num="03" data-view="speed"><span>Speed</span></a>
+        <div class="nav-section">Protection</div>
+        <a class="nav-item" data-num="04" data-view="protection"><span>Malware Scan</span></a>
+        <div class="nav-section">Cleanup</div>
+        <a class="nav-item" data-num="05" data-view="cleaner"><span>Junk Cleaner</span></a>
+        <a class="nav-item" data-num="06" data-view="spacelens"><span>Space Lens</span></a>
+        <a class="nav-item" data-num="07" data-view="duplicates"><span>Duplicates</span></a>
+        <a class="nav-item" data-num="08" data-view="cloud"><span>Cloud Cleanup</span></a>
+        <div class="nav-section">Applications</div>
+        <a class="nav-item" data-num="09" data-view="apps"><span>App Manager</span></a>
+        <div class="nav-section">AI Recon</div>
+        <a class="nav-item" data-num="10" data-view="agents"><span>AI Agents</span><span class="nav-badge" id="badge-agents">0</span></a>
+        <a class="nav-item" data-num="11" data-view="tokens"><span>Token Usage</span></a>
+        <a class="nav-item" data-num="12" data-view="models"><span>Local Models</span><span class="nav-badge" id="badge-models">0</span></a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="foot-user" id="foot-user">—</div>
+        <div class="foot-host" id="foot-host">—</div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <div class="topbar-title" id="page-title">Dashboard</div>
+        <div class="topbar-status">
+          <div class="topbar-pill"><span class="dot"></span><span>SECURE</span></div>
+          <div class="topbar-clock" id="topbar-clock">00:00:00</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost" id="refresh-btn">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- DASHBOARD · Smart Scan -->
+      <section class="view active" id="view-dashboard">
+        <div id="dash-stage" class="cmac-page"></div>
+        <div class="cmac-tasks" id="dash-cards"></div>
+
+        <div class="grid two">
+          <div class="card">
+            <div class="card-head"><h3>System</h3><span class="muted" id="sys-cpu">—</span></div>
+            <div class="kv" id="sys-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Token activity · last 24h</h3></div>
+            <div class="spark" id="spark-tokens"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACTIVITY MONITOR -->
+      <section class="view" id="view-activity">
+        <div class="metric-grid">
+          <div class="metric m-cpu">
+            <div class="metric-head"><div class="metric-label">CPU</div><div class="metric-val" id="m-cpu-val">—</div></div>
+            <div class="metric-bar"><div class="metric-fill" id="m-cpu-fill"></div></div>
+            <div class="metric-sub" id="m-cpu-sub">—</div>
+          </div>
+          <div class="metric m-mem">
+            <div class="metric-head"><div class="metric-label">Memory</div><div class="metric-val" id="m-mem-val">—</div></div>
+            <div class="metric-bar"><div class="metric-fill" id="m-mem-fill"></div></div>
+            <div class="metric-sub" id="m-mem-sub">—</div>
+          </div>
+          <div class="metric m-energy">
+            <div class="metric-head"><div class="metric-label">Energy Impact</div><div class="metric-val" id="m-energy-val">—</div></div>
+            <div class="metric-bar"><div class="metric-fill" id="m-energy-fill"></div></div>
+            <div class="metric-sub" id="m-energy-sub">sum of all process power scores</div>
+          </div>
+          <div class="metric m-net">
+            <div class="metric-head"><div class="metric-label">Network</div><div class="metric-val" id="m-net-val">—</div></div>
+            <div class="metric-bar"><div class="metric-fill" id="m-net-fill"></div></div>
+            <div class="metric-sub" id="m-net-sub">—</div>
+          </div>
+          <div class="metric m-disk">
+            <div class="metric-head"><div class="metric-label">Disk I/O</div><div class="metric-val" id="m-disk-val">—</div></div>
+            <div class="metric-bar"><div class="metric-fill" id="m-disk-fill"></div></div>
+            <div class="metric-sub" id="m-disk-sub">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Processes</h3>
+            <div class="tabs">
+              <button class="tab" data-sort="cpu" data-active="1">CPU</button>
+              <button class="tab" data-sort="mem">Memory</button>
+              <button class="tab" data-sort="power">Energy</button>
+              <button class="tab" data-sort="threads">Threads</button>
+            </div>
+            <label class="filter-toggle">
+              <input type="checkbox" id="apps-only"/>
+              <span>Apps only</span>
+            </label>
+          </div>
+          <div class="table" id="proc-table">
+            <div class="thead proc-thead">
+              <div>Process</div>
+              <div class="num-head">%CPU</div>
+              <div class="num-head">Memory</div>
+              <div class="num-head">Energy</div>
+              <div class="num-head">Threads</div>
+              <div class="num-head">PID</div>
+              <div>User</div>
+              <div></div>
+            </div>
+            <div class="tbody" id="proc-rows"></div>
+          </div>
+          <div class="muted" style="margin-top:12px;font-size:11.5px" id="proc-meta">—</div>
+        </div>
+      </section>
+
+      <!-- AGENTS -->
+      <section class="view" id="view-agents">
+        <div class="card">
+          <div class="card-head">
+            <h3>Running AI processes</h3>
+            <span class="muted" id="agents-count">—</span>
+          </div>
+          <div class="table" id="agents-table">
+            <div class="thead">
+              <div>Agent</div><div>PID</div><div>CPU%</div><div>Memory</div><div>Up</div><div></div>
+            </div>
+            <div class="tbody" id="agents-rows"></div>
+          </div>
+          <div class="empty hidden" id="agents-empty">
+            <div class="empty-emoji">◌</div>
+            <div class="empty-title">No AI agents currently running</div>
+            <div class="empty-sub">SmartShine watches for Claude, Codex, Cursor, Copilot, Ollama, LM Studio and more.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOKENS -->
+      <section class="view" id="view-tokens">
+        <div class="grid two">
+          <div class="card big">
+            <div class="card-head"><h3>Subscription budget</h3><span class="muted">Edit your monthly limit</span></div>
+            <div class="ring-area">
+              <div class="ring xl">
+                <svg viewBox="0 0 240 240">
+                  <circle cx="120" cy="120" r="100" class="ring-bg"/>
+                  <circle cx="120" cy="120" r="100" class="ring-fg" id="tok-ring"/>
+                </svg>
+                <div class="ring-inner">
+                  <div class="ring-pct" id="tok-pct">—</div>
+                  <div class="ring-sub" id="tok-sub">No limit set</div>
+                </div>
+              </div>
+              <div class="limit-edit">
+                <label>Monthly token limit</label>
+                <div class="row">
+                  <input type="number" id="limit-input" placeholder="e.g. 50000000"/>
+                  <button class="primary" id="limit-save">Save</button>
+                </div>
+                <div class="presets">
+                  <button data-l="0">No limit</button>
+                  <button data-l="10000000">Pro · 10M</button>
+                  <button data-l="50000000">Max · 50M</button>
+                  <button data-l="200000000">Team · 200M</button>
+                </div>
+                <div class="tok-remaining" id="tok-remaining"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Usage breakdown</h3></div>
+            <div class="bucket-list" id="bucket-list"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>By AI agent · this month</h3><span class="muted" id="agents-month-total">—</span></div>
+          <div id="provider-cards" class="provider-cards"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Recent sessions</h3><span class="muted">Across all detected AI agents</span></div>
+          <div class="table" id="sessions-table">
+            <div class="thead">
+              <div>Agent</div><div>Model</div><div>Messages</div><div>Billable</div><div>Cache read</div><div>Last</div>
+            </div>
+            <div class="tbody" id="sessions-rows"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODELS -->
+      <section class="view" id="view-models">
+        <div id="models-list"></div>
+        <div class="empty hidden" id="models-empty">
+          <div class="empty-emoji">⌬</div>
+          <div class="empty-title">No local AI models detected</div>
+          <div class="empty-sub">Install Ollama or LM Studio to manage local models from here.</div>
+        </div>
+      </section>
+
+      <!-- CLEANER -->
+      <section class="view" id="view-cleaner">
+        <div id="junk-stage" class="cmac-page"></div>
+        <div id="junk-results"></div>
+      </section>
+
+      <!-- CleanMyMac-style feature views — each filled by its own module in renderer/views/ -->
+      <section class="view" id="view-speed"></section>
+      <section class="view" id="view-protection"></section>
+      <section class="view" id="view-spacelens"></section>
+      <section class="view" id="view-duplicates"></section>
+      <section class="view" id="view-cloud"></section>
+      <section class="view" id="view-apps"></section>
+      <section class="view" id="view-drives"></section>
+    </main>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="shared/cmac.js"></script>
+  <script src="app.js"></script>
+  <!-- Feature view modules (register into window.CM_VIEWS) -->
+  <script src="views/speed.js"></script>
+  <script src="views/protection.js"></script>
+  <script src="views/spacelens.js"></script>
+  <script src="views/duplicates.js"></script>
+  <script src="views/cloud.js"></script>
+  <script src="views/apps.js"></script>
+  <script src="views/drives.js"></script>
+</body>
+</html>

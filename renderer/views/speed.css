@@ -1,0 +1,58 @@
+/* ============================================================
+   SPEED (PERFORMANCE) VIEW — view-only styles, prefixed `spd-`.
+   The CleanMyMac-style flow, orb, rows, toggles, CTAs, empty +
+   loading states all come from CMAC (cmac.css). Only the bits
+   CMAC doesn't cover live here: section spacing, the prominent
+   "Free Up RAM" action card, and the in-row mini buttons.
+   Cyberpunk neon-dark theme via the shared theme vars.
+   ============================================================ */
+
+.spd-results { display: flex; flex-direction: column; gap: 22px; }
+.spd-section { display: flex; flex-direction: column; }
+
+/* ---- Prominent "Free Up RAM" action card ---- */
+.spd-ram {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  border: 1px solid rgba(20, 255, 176, 0.28);
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(20, 255, 176, 0.10), transparent 60%),
+    linear-gradient(180deg, var(--panel), var(--bg-1));
+  box-shadow: 0 0 22px -10px var(--green-glow);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+.spd-ram-body { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.spd-ram-ico {
+  width: 42px; height: 42px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--green);
+  border: 1px solid rgba(20, 255, 176, 0.3);
+  background: rgba(20, 255, 176, 0.06);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.spd-ram-title {
+  font-family: var(--mono); font-size: 13px; font-weight: 600;
+  color: var(--text); letter-spacing: 0.3px;
+}
+.spd-ram-sub {
+  font-family: var(--sans); font-size: 12px; color: var(--text-2);
+  margin-top: 3px; line-height: 1.5;
+}
+
+/* ---- Compact CTA used inside list rows (Remove / Reveal / Quit) ---- */
+.cmac-cta.spd-mini {
+  padding: 7px 14px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  clip-path: polygon(0 0, 100% 0, 100% 70%, calc(100% - 8px) 100%, 0 100%);
+}
+.cmac-cta.spd-mini .spin { width: 11px; height: 11px; border-width: 2px; }
+
+@media (max-width: 560px) {
+  .spd-ram { justify-content: flex-start; }
+  .spd-ram .cmac-cta { width: 100%; }
+}

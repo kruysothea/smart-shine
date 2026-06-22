@@ -1,0 +1,47 @@
+{
+  "name": "smartshine",
+  "version": "2.0.0",
+  "description": "AI agents monitor, local models, and full Mac optimization suite — cleanup, speed, malware scan, app manager, duplicates, cloud & Space Lens",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "dist": "electron-builder --mac --arm64"
+  },
+  "author": "kruysothea",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.kruysothea.smartshine",
+    "productName": "SmartShine",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        { "target": "dmg", "arch": "arm64" },
+        { "target": "zip", "arch": "arm64" }
+      ],
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "title": "SmartShine ${version}",
+      "artifactName": "SmartShine-${version}-arm64.dmg",
+      "contents": [
+        { "x": 140, "y": 200 },
+        { "x": 400, "y": 200, "type": "link", "path": "/Applications" }
+      ]
+    }
+  }
+}

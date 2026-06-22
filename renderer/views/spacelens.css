@@ -1,0 +1,211 @@
+/* ============================================================
+   SPACE LENS — interactive disk bubble-map. All classes `sl-`.
+   Pairs with CMAC components (.cmac-toolbar/.cmac-list/.cmac-row)
+   and the cyberpunk theme vars from styles.css.
+   ============================================================ */
+
+/* ---------- Toolbar: breadcrumb + Up / Choose Root + big total ---------- */
+.sl-toolbar {
+  align-items: center;
+  gap: 8px 12px;
+  padding: 4px 2px;
+}
+.sl-crumbs {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: 2px; min-width: 0; flex: 1;
+}
+.sl-crumb {
+  font-family: var(--mono); font-size: 11.5px;
+  color: var(--text-2);
+  background: transparent; border: 0;
+  padding: 4px 7px; cursor: pointer;
+  white-space: nowrap;
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  transition: color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+.sl-crumb:not(:disabled):hover {
+  color: var(--cyan-bright);
+  background: rgba(34, 211, 238, 0.1);
+  box-shadow: inset 0 0 0 1px var(--line-bright);
+}
+.sl-crumb-cur {
+  color: var(--cyan-bright); font-weight: 700; cursor: default;
+  background: rgba(34, 211, 238, 0.06);
+  box-shadow: inset 0 0 0 1px var(--line-bright);
+}
+.sl-sep { color: var(--text-4); font-family: var(--mono); font-size: 11px; }
+
+/* compact toolbar CTAs */
+.sl-toolbar .cmac-cta { padding: 9px 16px; font-size: 11px; letter-spacing: 1.2px; }
+
+.sl-total {
+  display: flex; flex-direction: column; align-items: flex-end;
+  margin-left: auto; line-height: 1.1;
+}
+.sl-total-num {
+  font-family: var(--mono); font-size: 26px; font-weight: 700;
+  background: var(--grad-primary);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 24px var(--cyan-glow);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.5px;
+}
+.sl-total-cap {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.4px;
+  text-transform: uppercase; color: var(--text-3); margin-top: 3px;
+}
+
+/* ---------- The bubble map ---------- */
+.sl-mapwrap {
+  padding: 26px 22px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(34,211,238,0.07), transparent 60%),
+    linear-gradient(180deg, var(--panel), var(--bg-1));
+}
+.sl-mapwrap::before {
+  /* faint tech grid behind the bubbles */
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(34,211,238,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,0.035) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 80%);
+  pointer-events: none;
+}
+.sl-map {
+  position: relative; z-index: 1;
+  display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: center;
+  gap: 12px;
+}
+
+/* one circle per child; --d sets diameter, --i drives stagger */
+.sl-bub {
+  position: relative;
+  width: var(--d, 80px); height: var(--d, 80px);
+  flex-shrink: 0;
+  border: 0; background: transparent; padding: 0;
+  border-radius: 50%;
+  cursor: default;
+  /* staggered scale/fade in */
+  opacity: 0; transform: scale(0.4);
+  animation: sl-pop 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 0.035s);
+  transition: transform 0.22s cubic-bezier(0.16,1,0.3,1), filter 0.22s ease;
+}
+.sl-bub.sl-dir { cursor: pointer; }
+.sl-bub:disabled { cursor: default; }
+
+/* outer soft glow */
+.sl-bub-glow {
+  position: absolute; inset: -10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--sl-c) 32%, transparent) 0%, transparent 68%);
+  opacity: 0.7;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  pointer-events: none;
+}
+/* neon ring */
+.sl-bub-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--sl-c) 75%, transparent);
+  box-shadow:
+    0 0 14px -2px color-mix(in srgb, var(--sl-c) 70%, transparent),
+    inset 0 0 22px -6px color-mix(in srgb, var(--sl-c) 80%, transparent);
+  pointer-events: none;
+}
+/* filled core */
+.sl-bub-core {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; gap: 2px; padding: 6px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 32%,
+      color-mix(in srgb, var(--sl-c) 26%, transparent) 0%,
+      color-mix(in srgb, var(--sl-c) 8%, transparent) 60%,
+      rgba(7,10,17,0.55) 100%);
+}
+.sl-bub-icn {
+  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; color: color-mix(in srgb, var(--sl-c) 90%, white 10%);
+  opacity: 0.85;
+}
+.sl-bub-label { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; max-width: 92%; }
+.sl-bub-name {
+  font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text);
+  max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+.sl-bub-size {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  color: color-mix(in srgb, var(--sl-c) 85%, white 15%);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  font-variant-numeric: tabular-nums;
+}
+
+/* hover: lift, brighten, subtle idle pulse on the glow (folders only emphasised) */
+.sl-bub.sl-dir:hover {
+  transform: scale(1.08);
+  z-index: 3;
+  filter: saturate(1.15);
+}
+.sl-bub.sl-dir:hover .sl-bub-glow { opacity: 1; animation: sl-pulse 1.6s ease-in-out infinite; }
+.sl-bub.sl-dir:hover .sl-bub-ring { border-color: var(--sl-c); box-shadow: 0 0 26px -2px var(--sl-c), inset 0 0 26px -4px color-mix(in srgb, var(--sl-c) 80%, transparent); }
+.sl-bub.sl-dir:active { transform: scale(1.02); }
+.sl-bub.sl-file { opacity: 1; } /* keep files calmer */
+.sl-bub.sl-file .sl-bub-glow { opacity: 0.45; }
+
+/* size tiers — biggest = red/amber, mid = cyan, small = magenta */
+.sl-hot  { --sl-c: var(--red); }
+.sl-warm { --sl-c: var(--amber); }
+.sl-mid  { --sl-c: var(--cyan); }
+.sl-cool { --sl-c: var(--magenta); }
+
+/* "+N more" collapse disc */
+.sl-more { --sl-c: var(--text-3); cursor: default; }
+.sl-more .sl-bub-name { font-size: 12px; color: var(--text-2); }
+.sl-more .sl-bub-size { color: var(--text-3); }
+
+/* ---------- Synced list (mirrors the bubbles) ---------- */
+.sl-listwrap { margin-top: 4px; }
+.sl-list .cmac-row[data-drill] { cursor: pointer; }
+.sl-row-ctl { display: flex; align-items: center; gap: 8px; }
+.cmac-cta.sl-mini {
+  padding: 6px 12px; font-size: 10px; letter-spacing: 1px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* ---------- Stage wrapper for loading/empty states ---------- */
+.sl-stage {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--panel), var(--bg-1));
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes sl-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes sl-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.06); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .sl-total { margin-left: 0; align-items: flex-start; }
+  .sl-total-num { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sl-bub { animation: none; opacity: 1; transform: none; }
+  .sl-bub.sl-dir:hover .sl-bub-glow { animation: none; }
+}

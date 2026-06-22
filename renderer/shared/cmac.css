@@ -1,0 +1,406 @@
+/* ============================================================
+   CMAC — CleanMyMac-style component layer (cyberpunk skin)
+   Centered "module" pages, big animated scan orb, category rows,
+   task cards, toggles, count-up stats, and a results/celebration
+   state. Used by every feature view. Reuses the theme vars in
+   styles.css (var(--cyan), var(--green), var(--mono), etc.).
+   ============================================================ */
+
+/* ---------- Page / module landing ---------- */
+.cmac-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 6px;
+  animation: cmac-fade-in 0.35s ease both;
+}
+.cmac-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 26px 24px 30px;
+  position: relative;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(34,211,238,0.08), transparent 60%),
+    linear-gradient(180deg, var(--panel) 0%, var(--bg-1) 100%);
+  border: 1px solid var(--line-bright);
+  box-shadow: var(--shadow-glow);
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  overflow: hidden;
+}
+.cmac-stage::before {
+  /* faint tech grid */
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(34,211,238,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,0.04) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse at 50% 30%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 0%, transparent 75%);
+  pointer-events: none;
+}
+.cmac-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--cyan); opacity: 0.85;
+}
+.cmac-title {
+  font-family: var(--mono);
+  font-size: 22px; font-weight: 700; letter-spacing: 0.5px;
+  color: var(--text);
+  position: relative; z-index: 1;
+}
+.cmac-sub {
+  font-family: var(--sans);
+  font-size: 13.5px; line-height: 1.6; color: var(--text-2);
+  max-width: 540px; position: relative; z-index: 1;
+}
+
+/* ---------- The big scan ORB ---------- */
+.cmac-orb {
+  --orb: 300px;
+  position: relative;
+  width: var(--orb); height: var(--orb);
+  margin: 6px 0 2px;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.cmac-orb svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.cmac-orb .cmac-ring-track { fill: none; stroke: rgba(34,211,238,0.10); stroke-width: 6; }
+.cmac-orb .cmac-ring-prog {
+  fill: none; stroke: url(#cmacGrad); stroke-width: 6; stroke-linecap: round;
+  stroke-dasharray: var(--circ, 760); stroke-dashoffset: var(--circ, 760);
+  transition: stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1);
+  filter: drop-shadow(0 0 10px var(--cyan-glow));
+}
+.cmac-orb.green .cmac-ring-prog { stroke: var(--green); filter: drop-shadow(0 0 10px var(--green-glow)); }
+.cmac-orb.amber .cmac-ring-prog { stroke: var(--amber); filter: drop-shadow(0 0 10px var(--amber-glow)); }
+.cmac-orb.red   .cmac-ring-prog { stroke: var(--red);   filter: drop-shadow(0 0 10px var(--red-glow)); }
+
+/* dashed decorative rings that rotate while scanning */
+.cmac-orb .cmac-ring-dash {
+  fill: none; stroke: rgba(34,211,238,0.28); stroke-width: 1.4;
+  stroke-dasharray: 2 10; transform-origin: 50% 50%;
+}
+.cmac-orb .cmac-ring-dash2 {
+  fill: none; stroke: rgba(185,127,255,0.22); stroke-width: 1; stroke-dasharray: 1 16;
+  transform-origin: 50% 50%;
+}
+.cmac-orb.scanning .cmac-ring-dash  { animation: cmac-spin 7s linear infinite; }
+.cmac-orb.scanning .cmac-ring-dash2 { animation: cmac-spin 11s linear infinite reverse; }
+
+/* radar sweep — conic gradient that rotates during a scan */
+.cmac-orb-sweep {
+  position: absolute; inset: 8%; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(34,211,238,0.0) 250deg, var(--cyan-glow) 350deg, transparent 360deg);
+  opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+  mask: radial-gradient(circle, transparent 52%, #000 53%);
+  -webkit-mask: radial-gradient(circle, transparent 52%, #000 53%);
+}
+.cmac-orb.scanning .cmac-orb-sweep { opacity: 1; animation: cmac-spin 1.8s linear infinite; }
+
+/* orbiting particle */
+.cmac-orb-particle {
+  position: absolute; top: 50%; left: 50%; width: 0; height: 0; opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.cmac-orb-particle::after {
+  content: ''; position: absolute;
+  top: calc(var(--orb) / -2 + 6px); left: -3px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 12px var(--cyan), 0 0 20px var(--cyan-glow);
+}
+.cmac-orb.scanning .cmac-orb-particle { opacity: 1; animation: cmac-spin 2.4s linear infinite; }
+
+/* center stack: button (idle) or stat (done) */
+.cmac-orb-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 4px;
+}
+.cmac-orb-num {
+  font-family: var(--mono);
+  font-size: 46px; font-weight: 700; letter-spacing: -1px;
+  background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 26px var(--cyan-glow);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.cmac-orb.green .cmac-orb-num { background: var(--grad-green); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cmac-orb-unit { font-family: var(--mono); font-size: 18px; color: var(--text-2); margin-left: 2px; -webkit-text-fill-color: var(--text-2); }
+.cmac-orb-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-3); margin-top: 4px;
+}
+.cmac-orb-status {
+  font-family: var(--mono); font-size: 11px; color: var(--cyan-bright);
+  letter-spacing: 1px; min-height: 14px;
+}
+
+/* The big round center scan button */
+.cmac-scan-btn {
+  width: 150px; height: 150px; border-radius: 50%;
+  border: 1px solid var(--cyan-dim);
+  background:
+    radial-gradient(circle at 50% 35%, rgba(34,211,238,0.18), rgba(34,211,238,0.02) 70%),
+    var(--bg-2);
+  color: var(--cyan-bright);
+  font-family: var(--mono); font-size: 15px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; position: relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  box-shadow: inset 0 0 24px rgba(34,211,238,0.12), 0 0 22px -6px var(--cyan-glow);
+}
+.cmac-scan-btn::before {
+  content: ''; position: absolute; inset: -6px; border-radius: 50%;
+  border: 1px solid rgba(34,211,238,0.18); animation: cmac-pulse-ring 2.6s ease-out infinite;
+}
+.cmac-scan-btn:hover { transform: scale(1.04); border-color: var(--cyan); box-shadow: inset 0 0 30px rgba(34,211,238,0.2), 0 0 34px -4px var(--cyan-glow); }
+.cmac-scan-btn:active { transform: scale(0.98); }
+.cmac-scan-btn:disabled { opacity: 0.55; cursor: default; }
+.cmac-scan-btn.green { color: var(--green); border-color: var(--green-dim); box-shadow: inset 0 0 24px rgba(20,255,176,0.12), 0 0 22px -6px var(--green-glow); }
+
+/* ---------- Big CTA buttons (rounded, neon) ---------- */
+.cmac-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 13px 30px; border: 0; cursor: pointer;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  letter-spacing: 1.6px; text-transform: uppercase;
+  color: #04060a; background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dim) 100%);
+  box-shadow: 0 0 20px rgba(34,211,238,0.4);
+  clip-path: polygon(0 0, 100% 0, 100% 72%, calc(100% - 12px) 100%, 0 100%);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+.cmac-cta:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 30px rgba(34,211,238,0.6); }
+.cmac-cta:disabled { opacity: 0.4; cursor: not-allowed; }
+.cmac-cta.green { background: linear-gradient(135deg, var(--green) 0%, var(--green-dim) 100%); box-shadow: 0 0 20px var(--green-glow); }
+.cmac-cta.danger { background: linear-gradient(135deg, var(--red) 0%, #b81e54 100%); color: #fff; box-shadow: 0 0 20px var(--red-glow); }
+.cmac-cta.ghost {
+  background: rgba(34,211,238,0.04); color: var(--cyan-bright);
+  border: 1px solid var(--line-bright); box-shadow: none;
+}
+.cmac-cta.ghost:hover:not(:disabled) { background: rgba(34,211,238,0.1); border-color: var(--cyan-dim); }
+.cmac-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; }
+
+/* ---------- Category / task LIST ---------- */
+.cmac-list { display: flex; flex-direction: column; }
+.cmac-row {
+  display: grid;
+  grid-template-columns: 44px 1fr auto auto;
+  align-items: center; gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  background: linear-gradient(90deg, rgba(34,211,238,0.015), transparent);
+  transition: background 0.14s ease, border-color 0.14s ease, transform 0.14s ease;
+  position: relative;
+}
+.cmac-list .cmac-row:first-child { clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+.cmac-list .cmac-row:last-child  { border-bottom: 1px solid var(--line); clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px)); }
+.cmac-row:hover { background: linear-gradient(90deg, rgba(34,211,238,0.07), transparent); border-color: var(--line-bright); }
+.cmac-row.selected { box-shadow: inset 3px 0 0 var(--cyan); }
+.cmac-row.danger.selected { box-shadow: inset 3px 0 0 var(--red); }
+
+.cmac-row-ico {
+  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line-bright); color: var(--cyan-bright);
+  background: rgba(34,211,238,0.06);
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  font-family: var(--mono); font-size: 16px; font-weight: 700;
+}
+.cmac-row-ico svg { width: 19px; height: 19px; }
+.cmac-row-ico.green { color: var(--green); border-color: rgba(20,255,176,0.3); background: rgba(20,255,176,0.06); }
+.cmac-row-ico.amber { color: var(--amber); border-color: rgba(255,182,72,0.3); background: rgba(255,182,72,0.06); }
+.cmac-row-ico.red   { color: var(--red);   border-color: rgba(255,45,117,0.3);  background: rgba(255,45,117,0.06); }
+.cmac-row-ico.magenta { color: var(--magenta); border-color: rgba(185,127,255,0.3); background: rgba(185,127,255,0.06); }
+
+.cmac-row-body { min-width: 0; }
+.cmac-row-name {
+  font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text);
+  letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cmac-row-sub {
+  font-family: var(--mono); font-size: 10.5px; color: var(--text-3); margin-top: 3px;
+  letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cmac-row-val {
+  font-family: var(--mono); font-size: 14px; font-weight: 700;
+  color: var(--cyan-bright); font-variant-numeric: tabular-nums; text-align: right;
+  white-space: nowrap;
+}
+.cmac-row-val small { display: block; font-size: 9px; color: var(--text-3); font-weight: 400; letter-spacing: 0.6px; text-transform: uppercase; margin-top: 2px; }
+
+/* staggered slide-in for list children */
+.cmac-stagger > * { opacity: 0; animation: cmac-row-in 0.45s cubic-bezier(0.16,1,0.3,1) forwards; }
+.cmac-stagger > *:nth-child(1){animation-delay:.02s}
+.cmac-stagger > *:nth-child(2){animation-delay:.06s}
+.cmac-stagger > *:nth-child(3){animation-delay:.10s}
+.cmac-stagger > *:nth-child(4){animation-delay:.14s}
+.cmac-stagger > *:nth-child(5){animation-delay:.18s}
+.cmac-stagger > *:nth-child(6){animation-delay:.22s}
+.cmac-stagger > *:nth-child(7){animation-delay:.26s}
+.cmac-stagger > *:nth-child(8){animation-delay:.30s}
+.cmac-stagger > *:nth-child(9){animation-delay:.34s}
+.cmac-stagger > *:nth-child(n+10){animation-delay:.38s}
+
+/* ---------- Custom checkbox + toggle ---------- */
+.cmac-check {
+  appearance: none; -webkit-appearance: none;
+  width: 20px; height: 20px; cursor: pointer; position: relative;
+  border: 1px solid var(--line-bright); background: var(--bg-2);
+  transition: all 0.14s ease; flex-shrink: 0;
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+}
+.cmac-check:checked { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); }
+.cmac-check:checked::after {
+  content: ''; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+  border: solid #04060a; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+.cmac-check.red:checked { background: var(--red); border-color: var(--red); box-shadow: 0 0 10px var(--red-glow); }
+
+.cmac-toggle { position: relative; width: 46px; height: 24px; cursor: pointer; flex-shrink: 0; }
+.cmac-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.cmac-toggle .cmac-track {
+  position: absolute; inset: 0; background: var(--bg-3); border: 1px solid var(--line-bright);
+  border-radius: 13px; transition: all 0.18s ease;
+}
+.cmac-toggle .cmac-knob {
+  position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--text-3); transition: all 0.18s ease;
+}
+.cmac-toggle input:checked + .cmac-track { background: rgba(20,255,176,0.18); border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+.cmac-toggle input:checked + .cmac-track .cmac-knob { left: 25px; background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
+
+/* ---------- Performance task cards ---------- */
+.cmac-tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.cmac-task {
+  border: 1px solid var(--line); padding: 18px; position: relative;
+  background: linear-gradient(180deg, var(--panel), var(--bg-1));
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  transition: border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+.cmac-task:hover { border-color: var(--line-bright); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+.cmac-task-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.cmac-task-name { font-family: var(--mono); font-size: 12.5px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text); }
+.cmac-task-desc { font-family: var(--sans); font-size: 12px; color: var(--text-2); line-height: 1.5; min-height: 34px; }
+.cmac-task-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.cmac-task-stat { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--cyan-bright); font-variant-numeric: tabular-nums; }
+
+/* ---------- Section headers / toolbars ---------- */
+.cmac-section-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 4px 2px 10px; flex-wrap: wrap;
+}
+.cmac-section-title {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--cyan-bright);
+  display: flex; align-items: center; gap: 9px;
+}
+.cmac-section-title::before { content: '▸'; color: var(--cyan); font-size: 9px; }
+.cmac-count { font-family: var(--mono); font-size: 10.5px; color: var(--text-3); letter-spacing: 0.6px; text-transform: uppercase; }
+.cmac-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.cmac-input {
+  flex: 1; min-width: 160px; background: var(--bg-2); border: 1px solid var(--line-bright);
+  color: var(--text); padding: 10px 14px; font-family: var(--mono); font-size: 12.5px; outline: none;
+  transition: all 0.14s ease;
+}
+.cmac-input:focus { border-color: var(--cyan); box-shadow: var(--shadow-glow); }
+
+/* ---------- Result / celebration ---------- */
+.cmac-result { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 30px 20px; text-align: center; }
+.cmac-result-badge {
+  width: 110px; height: 110px; border-radius: 50%; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--green); color: var(--green);
+  background: radial-gradient(circle, rgba(20,255,176,0.12), transparent 70%);
+  box-shadow: 0 0 30px -4px var(--green-glow), inset 0 0 24px rgba(20,255,176,0.1);
+  animation: cmac-pop 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+.cmac-result-badge svg { width: 52px; height: 52px; }
+.cmac-result-badge::after {
+  content: ''; position: absolute; inset: -8px; border-radius: 50%;
+  border: 1px solid var(--green); opacity: 0; animation: cmac-ring-burst 0.7s ease-out 0.1s both;
+}
+.cmac-result-title { font-family: var(--mono); font-size: 18px; font-weight: 700; letter-spacing: 0.5px; color: var(--text); }
+.cmac-result-stat {
+  font-family: var(--mono); font-size: 34px; font-weight: 700;
+  background: var(--grad-green); -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-variant-numeric: tabular-nums; text-shadow: 0 0 24px var(--green-glow);
+}
+.cmac-result-sub { font-family: var(--sans); font-size: 13px; color: var(--text-2); }
+
+/* ---------- Empty + loading ---------- */
+.cmac-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 54px 24px; text-align: center; color: var(--text-3);
+}
+.cmac-empty-ico { width: 60px; height: 60px; opacity: 0.5; color: var(--text-4); }
+.cmac-empty-ico svg { width: 100%; height: 100%; }
+.cmac-empty-title { font-family: var(--mono); font-size: 13px; color: var(--text-2); letter-spacing: 1px; text-transform: uppercase; }
+.cmac-empty-sub { font-family: var(--sans); font-size: 12.5px; max-width: 420px; line-height: 1.6; }
+.cmac-loading {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 60px 20px; color: var(--text-2);
+  font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
+}
+.cmac-loading .spin { width: 26px; height: 26px; border-width: 3px; }
+
+/* progress bar (sub-scan) */
+.cmac-bar { height: 6px; background: rgba(255,255,255,0.05); overflow: hidden; width: 100%; }
+.cmac-bar-fill { height: 100%; width: 0%; background: var(--grad-primary); box-shadow: 0 0 10px var(--cyan-glow); transition: width 0.3s ease; }
+
+/* ---------- Keyframes ---------- */
+@keyframes cmac-spin { to { transform: rotate(360deg); } }
+@keyframes cmac-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes cmac-row-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes cmac-pulse-ring {
+  0% { transform: scale(1); opacity: 0.7; }
+  70% { transform: scale(1.25); opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes cmac-pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes cmac-ring-burst { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.6); opacity: 0; } }
+
+/* ============================================================
+   SIDEBAR — CleanMyMac-style icons (replace the numbered prefix)
+   ============================================================ */
+.nav-item::before {
+  content: '' !important;
+  width: 18px !important; height: 18px;
+  background-color: currentColor;
+  -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-size: contain; mask-size: contain;
+  opacity: 0.9;
+}
+.nav-item[data-view="dashboard"]::before  { -webkit-mask-image: var(--ic-smart);   mask-image: var(--ic-smart); }
+.nav-item[data-view="activity"]::before   { -webkit-mask-image: var(--ic-activity);mask-image: var(--ic-activity); }
+.nav-item[data-view="speed"]::before      { -webkit-mask-image: var(--ic-speed);   mask-image: var(--ic-speed); }
+.nav-item[data-view="protection"]::before { -webkit-mask-image: var(--ic-shield);  mask-image: var(--ic-shield); }
+.nav-item[data-view="cleaner"]::before    { -webkit-mask-image: var(--ic-broom);   mask-image: var(--ic-broom); }
+.nav-item[data-view="spacelens"]::before  { -webkit-mask-image: var(--ic-lens);    mask-image: var(--ic-lens); }
+.nav-item[data-view="duplicates"]::before { -webkit-mask-image: var(--ic-dup);     mask-image: var(--ic-dup); }
+.nav-item[data-view="cloud"]::before      { -webkit-mask-image: var(--ic-cloud);   mask-image: var(--ic-cloud); }
+.nav-item[data-view="apps"]::before       { -webkit-mask-image: var(--ic-apps);    mask-image: var(--ic-apps); }
+.nav-item[data-view="agents"]::before     { -webkit-mask-image: var(--ic-bot);     mask-image: var(--ic-bot); }
+.nav-item[data-view="tokens"]::before     { -webkit-mask-image: var(--ic-token);   mask-image: var(--ic-token); }
+.nav-item[data-view="models"]::before     { -webkit-mask-image: var(--ic-cube);    mask-image: var(--ic-cube); }
+
+/* Inline SVG icon set (monoline, inherit color via mask). */
+:root {
+  --ic-smart:    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l2.2 5 5.3.4-4 3.5 1.3 5.2L12 19.8 7.2 22.6l1.3-5.2-4-3.5 5.3-.4z'/></svg>");
+  --ic-activity: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12h4l3 8 4-16 3 8h4'/></svg>");
+  --ic-speed:    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M13 2L4.5 13.5H11l-1 8.5 8.5-11.5H12z'/></svg>");
+  --ic-shield:   url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z'/><path d='M9 12l2 2 4-4'/></svg>");
+  --ic-broom:    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 5l-7 7'/><path d='M14 7l3 3'/><path d='M11 10l-5 5c-1 1-1 3 0 4s3 1 4 0l5-5'/><path d='M6 19l-2 2'/></svg>");
+  --ic-lens:     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><path d='M16 16l5 5'/><circle cx='11' cy='11' r='2.5'/></svg>");
+  --ic-dup:      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='8' y='8' width='12' height='12' rx='1'/><path d='M4 16V5a1 1 0 0 1 1-1h11'/></svg>");
+  --ic-cloud:    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.3A3.5 3.5 0 0 1 18 18z'/></svg>");
+  --ic-apps:     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/></svg>");
+  --ic-bot:      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='8' width='16' height='11' rx='2'/><path d='M12 8V4'/><circle cx='9' cy='13' r='1'/><circle cx='15' cy='13' r='1'/></svg>");
+  --ic-token:    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='8'/><path d='M12 8v8M9 10h4.5a1.5 1.5 0 0 1 0 3H9'/></svg>");
+  --ic-cube:     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l8 4.5v9L12 21l-8-4.5v-9z'/><path d='M12 12l8-4.5M12 12v9M12 12L4 7.5'/></svg>");
+}

@@ -1,0 +1,125 @@
+/* ============================================================
+   CLOUD CLEANUP — inspect + reveal only (cloud- prefix)
+   CleanMyMac-style flow (centered orb landing -> per-provider
+   sections of folder rows). Leans on CMAC components; adds only
+   the cloud-specific proportional bars + section chrome.
+   ============================================================ */
+
+.cloud-page {
+  gap: 22px;
+}
+
+/* Region that holds the per-provider result sections (below the orb). */
+.cloud-results {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.cloud-section {
+  animation: cmac-fade-in 0.4s ease both;
+}
+
+/* ---------- Section header (provider name + total + reveal) ---------- */
+.cloud-section-head {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+
+.cloud-section-head .cmac-section-title::before {
+  color: var(--cloud-accent, var(--cyan));
+}
+
+.cloud-account {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: none;
+  color: var(--cloud-accent, var(--cyan));
+  padding: 2px 8px;
+  border: 1px solid var(--line-bright);
+  background: rgba(34, 211, 238, 0.05);
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+}
+
+.cloud-head-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cloud-total {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 12px var(--cloud-accent, var(--cyan-glow));
+}
+
+/* Reveal buttons are compact ghost CTAs. */
+.cloud-reveal {
+  padding: 8px 16px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
+/* ---------- Folder rows + proportional bars ---------- */
+.cloud-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Each wrapper holds a CMAC row + a full-width relative-size bar. */
+.cloud-rowwrap {
+  position: relative;
+}
+
+/* The bar visually merges with the row's bottom edge. */
+.cloud-rowwrap .cmac-row {
+  border-bottom: 0;
+}
+
+.cloud-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-inline: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.cloud-rowwrap:last-child .cloud-bar {
+  border-bottom: 1px solid var(--line);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 4px));
+}
+
+.cloud-bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--cloud-accent, var(--cyan));
+  box-shadow: 0 0 8px var(--cloud-accent, var(--cyan-glow));
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tint the row icon to the provider accent. */
+.cloud-rowwrap .cmac-row-ico {
+  color: var(--cloud-accent, var(--cyan-bright));
+  border-color: var(--line-bright);
+}
+
+/* Path sub-line: allow it to wrap softly, no uppercasing. */
+.cloud-rowwrap .cmac-row-sub {
+  text-transform: none;
+  letter-spacing: 0.1px;
+}
+
+/* ---------- Empty / no-items copy ---------- */
+.cloud-noitems {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  color: var(--text-3);
+  padding: 14px 16px;
+  border: 1px dashed var(--line);
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.015), transparent);
+}
